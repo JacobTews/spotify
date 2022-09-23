@@ -9,19 +9,26 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 # tasks:
 # retrieve Spotify data for 20 artists (must be at least 1000 songs)
+# includes
+#   artist info
+#   album info
+#   track info
+#   track features
 
-birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
-spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+def get_artist_info():
+    pass
 
-results = spotify.artist_albums(birdy_uri, album_type='album')
-albums = results['items']
-while results['next']:
-    results = spotify.next(results)
-    albums.extend(results['items'])
+def get_album_info():
+    pass
 
-for album in albums:
-    print(album['name'])
+def get_track_info():
+    pass
 
+def get_track_features():
+    pass
+
+def ingest():
+    pass
 
 if __name__ == '__main__':
-    pass
+    ingest()

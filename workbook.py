@@ -80,14 +80,11 @@ def make_artist_table(artist_names: list) -> pd.DataFrame:
     for name in artist_names:
          artist_dict[name] = get_artist_info(name)
 
-    artist_table = pd.DataFrame.from_dict(artist_dict)
+    artist_table = pd.DataFrame.from_dict(artist_dict, orient='index')
 
     return artist_table
 
 if __name__ == '__main__':
-    # artist_info = get_artist_info('Ben Folds')
-    # for k, v in artist_info.items():
-    #     print(f'key: {k}\nvalue: {v}\n')
 
     artist_list = [
         'Bn Flds',
@@ -104,12 +101,12 @@ if __name__ == '__main__':
         'justin bieber',
         'taylor swift'
     ]
-    test_table = make_artist_table(artist_list)
 
-    print(test_table)
+    test_table = make_artist_table(['fernando ortega'])
 
-    test_table.to_sql('artists', con=sqlite3.connect('test.db'), if_exists='replace')
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+        print(test_table)
+
+    # test_table.to_sql('artists', con=sqlite3.connect('test.db'), if_exists='replace')
 
     print('Run completed')
-
-    sqlite3.

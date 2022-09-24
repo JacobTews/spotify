@@ -3,6 +3,7 @@ The purpose of this script is to retrieve the needed information from the Spotif
 
 """
 
+from datetime import datetime
 import pandas as pd
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials

@@ -115,20 +115,49 @@ def get_artist_info(artist_name: str) -> dict:
 
     return artist_info
 
-def make_artist_table(artist_names: list):
+def make_artist_table(artist_names: list) -> pd.DataFrame:
     artist_dict = {}
 
     for name in artist_names:
-         artist_dict[name] = get_artist_info(name)[0]
+        artist_info = get_artist_info(name)
+        artist_dict[artist_info['artist_id']] = artist_info
 
     artist_table = pd.DataFrame.from_dict(artist_dict, orient='index')
-
+    print(artist_table)
     return artist_table
 
+def get_artist_ids(artist_table: pd.DataFrame) -> list:
+
+    artist_ids = artist_table['artist_id'].tolist()
+
+    return artist_ids
+
+def get_album_info(artist_id: str) -> dict:
+    pass
+
+def make_album_table(artist_ids: list) -> pd.DataFrame:
+    album_dict = {}
+
+    for id in artist_ids:
+        pass
+         # album_dict[name] = get_artist_info(name)
+
+    album_table = pd.DataFrame.from_dict(album_dict, orient='index')
+
+    return album_table
+
 def ingest(artist_list: list):
+
+    # Here's the pipeline!
+    # First we create a pd.DataFrame of all the artist info
     artist = make_artist_table(artist_list)
 
+    # In order to retrieve album info, we need artist ids in a list
+    artist_ids = get_artist_ids(artist)
+
+    # Next we create a pd.DataFrame of all the album info (multiple albums per artist)
+    album = make_album_table(artist_ids)
 
 if __name__ == '__main__':
-    artist_list = []
+    artist_list = ['Ben Folds', 'Earth, wind, and fire', 'hilary hahn']
     ingest(artist_list)

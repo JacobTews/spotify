@@ -4,18 +4,19 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import sqlite3
 
 # needed_features = [
-#     album_id
-#     album_name
-#     external_url
-#     image_url
-#     release_date (date)
-#     total_tracks (int)
-#     type
-#     album_uri
+#     FEATURE_NAME ('API ACCESS NAME')
+#     album_id ('id')
+#     album_name ('name')
+#     external_url ('external_urls'['spotify'])
+#     image_url ('images'[0]['url'])
+#     release_date ('release_date') NOTE: the API sends a string, needs to be converted to a date for SQLite)
+#     total_tracks ('total_tracks')
+#     type ('album_type')
+#     album_uri ('uri')
 #     artist_id
 # ]
 
-def get_album_info(artist_id):
+def get_album_info(artist_id: str) -> dict:
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
     results = spotify.artist_albums(artist_id=artist_id, album_type='album', country='US', limit=50)
     albums = results['items']
@@ -24,8 +25,18 @@ def get_album_info(artist_id):
     if len(albums) == 0:
         return None
 
+    complete_albums_dict = {}
+
     for album in albums:
-        print(album)
+        album_dict = {}
+
+        album_id = album['id']
+        album_dict['album_id'] = album_id
+
+
+
+        complete_albums_dict[album['id']] = album_dict
+
 
 if __name__ == '__main__':
 
@@ -47,18 +58,15 @@ if __name__ == '__main__':
         'jacob tews'
     ]
 
-    # create a spotipy object using the credentials stored on local machine as environment variables
-    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
-
-    for name in artist_list:
-        # search for artist by name
-        results = spotify.search(q=f'artist: {name}', type='artist')
-        items = results['artists']['items']
-        # if the search returns no results, items will be an empty list
-        if len(items) > 0:
-            artist = items[0]
-
-        artist_id = artist['id']
+    # for name in artist_list:
+    #     # search for artist by name
+    #     results = spotify.search(q=f'artist: {name}', type='artist')
+    #     items = results['artists']['items']
+    #     # if the search returns no results, items will be an empty list
+    #     if len(items) > 0:
+    #         artist = items[0]
+    #
+    #     artist_id = artist['id']
 
         # print(f'{artist["name"]} id: {artist_id}')
 

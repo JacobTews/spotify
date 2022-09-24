@@ -3,8 +3,29 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import sqlite3
 
+# needed_features = [
+#     album_id
+#     album_name
+#     external_url
+#     image_url
+#     release_date (date)
+#     total_tracks (int)
+#     type
+#     album_uri
+#     artist_id
+# ]
+
 def get_album_info(artist_id):
-    pass
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
+    results = spotify.artist_albums(artist_id=artist_id, album_type='album', country='US', limit=50)
+    albums = results['items']
+
+    # if the search returns no results, items will be an empty list
+    if len(albums) == 0:
+        return None
+
+    for album in albums:
+        print(album)
 
 if __name__ == '__main__':
 
@@ -21,26 +42,28 @@ if __name__ == '__main__':
         'mozart',
         'kanye',
         'justin bieber',
-        'taylor swift'
+        'taylor swift',
+        'korey konkol',
+        'jacob tews'
     ]
 
     # create a spotipy object using the credentials stored on local machine as environment variables
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
 
-    for artist in artist_list:
+    for name in artist_list:
         # search for artist by name
-        results = spotify.search(q=f'artist: {artist}', type='artist')
+        results = spotify.search(q=f'artist: {name}', type='artist')
         items = results['artists']['items']
         # if the search returns no results, items will be an empty list
         if len(items) > 0:
             artist = items[0]
 
-        # create dictionary of artist details
-        artist_info = {'type': 'artist'}
-
-        # each item is validated
         artist_id = artist['id']
 
-        print(artist_id)
+        # print(f'{artist["name"]} id: {artist_id}')
+
+    hilary_id = '5JdT0LYJdlPbTC58p60WTX'
+
+    get_album_info(hilary_id)
 
     print('Run completed')

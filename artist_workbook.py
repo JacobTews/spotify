@@ -38,7 +38,11 @@ def get_artist_info(artist_name: str) -> dict:
     # search for artist by name
     results = spotify.search(q=f'artist: {artist_name}', type='artist')
     items = results['artists']['items']
-    artist = items[0]
+    # if the search returns no results, items will be an empty list
+    if len(items) > 0:
+        artist = items[0]
+    else:
+        return None
 
     # create dictionary of artist details
     artist_info = {'type': 'artist'}
@@ -97,10 +101,20 @@ def get_artist_info(artist_name: str) -> dict:
     artist_info['followers'] = artist_followers
 
     # popularity must be an integer, otherwise we'll insert a null
-    artist_popularity = artist['popularity']
-    artist_uri = artist['uri']
+    try:
+        artist_popularity = int(artist['popularity'])
+    except:
+        artist_popularity = None
+    artist_info['popularity'] = artist_popularity
 
-    # for i in needed_items:
+    # artist_uri must be a string, otherwise we'll insert a null
+    artist_uri = artist['uri']
+    if isinstance(artist_uri, str) and len(artist_uri) > 0:
+        artist_info['artist_uri'] = artist_uri
+    else:
+        artist_info['artist_uri'] = None
+
+        # for i in needed_items:
     #     if i == 'external_urls':
     #         artist_info['external_url'] = artist[i]['spotify']
     #     elif i == 'images':
@@ -122,15 +136,6 @@ def get_artist_info(artist_name: str) -> dict:
 
     return artist_info
 
-def get_album_info():
-    pass
-
-def get_track_info():
-    pass
-
-def get_track_features():
-    pass
-
 def make_artist_table(artist_names: list) -> pd.DataFrame:
     artist_dict = {}
 
@@ -144,7 +149,7 @@ def make_artist_table(artist_names: list) -> pd.DataFrame:
 if __name__ == '__main__':
 
     artist_list = [
-        'Bn Flds',
+        'Ben Folds',
         'Chicago',
         'Elliott Miles McKinley',
         'Guarneri Quartet',
@@ -165,5 +170,10 @@ if __name__ == '__main__':
     #     print(get_artist_info('fernando ortega')[1])
 
     # test_table.to_sql('artists', con=sqlite3.connect('test.db'), if_exists='replace')
-    get_artist_info('fernando ortega')
+
+    # for artist in artist_list:
+    #     print(get_artist_info(artist))
+
+
+
     print('Run completed')

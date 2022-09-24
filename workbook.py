@@ -1,6 +1,7 @@
 import pandas as pd
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import sqlite3
 
 def spotipy_sample():
     birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
@@ -19,6 +20,7 @@ def spotipy_sample():
 
 def get_artist_info(artist_name: str) -> dict:
 
+    # Here is the list of artist features required:
     needed_items = [
         'id',
         'name',
@@ -30,7 +32,7 @@ def get_artist_info(artist_name: str) -> dict:
         'uri'
     ]
 
-    # create a spotipy object using the credentials stored as environment variables
+    # create a spotipy object using the credentials stored on local machine as environment variables
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
 
     # search for artist by name
@@ -47,12 +49,17 @@ def get_artist_info(artist_name: str) -> dict:
         elif i == 'images':
             if isinstance(artist[i], dict):
                 artist_info['image_url'] = artist[i]['url']
-            else:
+            elif isinstance(artist[i], list) and len(artist[i]) > 0:
                 artist_info['image_url'] = artist[i][0]['url']
+            else:
+                artist_info['image_url'] = 'No image available'
         elif i == 'followers':
             artist_info[i] = artist[i]['total']
-        elif isinstance(artist[i], list) and len(artist[i]) > 0:
-            artist_info[i] = artist[i][0]
+        elif isinstance(artist[i], list):
+            if len(artist[i]) > 0:
+                artist_info[i] = artist[i][0]
+            else:
+                artist_info[i] = 'No data available'
         else:
             artist_info[i] = artist[i]
 
@@ -82,7 +89,27 @@ if __name__ == '__main__':
     # for k, v in artist_info.items():
     #     print(f'key: {k}\nvalue: {v}\n')
 
-    test_table = make_artist_table(['Ben Folds', 'Chicago', 'Elliott Miles McKinley'])
+    artist_list = [
+        'Bn Flds',
+        'Chicago',
+        'Elliott Miles McKinley',
+        'Guarneri Quartet',
+        'Hilary Hahn',
+        'Arnold Schoenberg',
+        'elliott carter',
+        'augusta read thomas',
+        'michael foumai',
+        'mozart',
+        'kanye',
+        'justin bieber',
+        'taylor swift'
+    ]
+    test_table = make_artist_table(artist_list)
 
     print(test_table)
+
+    test_table.to_sql('artists', con=sqlite3.connect('test.db'), if_exists='replace')
+
     print('Run completed')
+
+    sqlite3.

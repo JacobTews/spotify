@@ -24,6 +24,7 @@ def get_album_info(artist_id: str) -> dict:
 
     # if the search returns no results, items will be an empty list
     if len(albums) == 0:
+        # raise Exception('No albums returned for this artist')
         return None
 
     # create dictionary of album details
@@ -86,12 +87,15 @@ def get_album_info(artist_id: str) -> dict:
 
         complete_albums_dict[album['id']] = album_dict
 
+    return complete_albums_dict
+
 def make_album_table(artist_ids: list) -> pd.DataFrame:
     album_dict = {}
 
     for id in artist_ids:
         album_info = get_album_info(id)
-        album_dict[album_info['album_id']] = album_info
+        for album_id in album_info.keys():
+            album_dict[album_id] = album_info[album_id]
 
     album_table = pd.DataFrame.from_dict(album_dict, orient='index')
 

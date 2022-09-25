@@ -140,9 +140,9 @@ def make_artist_table(artist_names: list) -> pd.DataFrame:
     artist_dict = {}
 
     for name in artist_names:
-         artist_dict[name] = get_artist_info(name)[0]
+         artist_dict[name] = get_artist_info(name)
 
-    artist_table = pd.DataFrame.from_dict(artist_dict, orient='index')
+    artist_table = pd.DataFrame.from_dict(artist_dict, orient='index').set_index('artist_id')
 
     return artist_table
 
@@ -174,6 +174,11 @@ if __name__ == '__main__':
     # for artist in artist_list:
     #     print(get_artist_info(artist))
 
+    df = make_artist_table(['hilary hahn'])
 
+    # for elem in df.values:
+    #     print(elem)
+
+    print(df)
 
     print('Run completed')

@@ -2,7 +2,7 @@
 The purpose of this script is to retrieve the needed information from the Spotify API.
 
 """
-
+import time
 from datetime import datetime
 import pandas as pd
 import spotipy
@@ -17,6 +17,9 @@ import sqlite3
 #   album info
 #   track info
 #   track features
+
+# **********
+# ARTIST functions
 
 def get_artist_info(artist_name: str) -> dict:
 
@@ -46,7 +49,7 @@ def get_artist_info(artist_name: str) -> dict:
 
     # create dictionary of artist details
     # each item is validated before being inserted into the artist_info dictionary
-    artist_info = {'type': 'artist'}
+    artist_info = {}
 
     artist_id = artist['id']
     # artist_id must be a string, otherwise we'll insert a null
@@ -62,6 +65,14 @@ def get_artist_info(artist_name: str) -> dict:
     else:
         artist_info['artist_name'] = None
 
+    # external_url must be a single string, otherwise we'll insert a null
+    # for artists with multiple urls, we will use the spotify one
+    artist_url = artist['external_urls']['spotify']
+    if len(artist_url) > 0:
+        artist_info['external url'] = artist_url
+    else:
+        artist_info['external url'] = None
+
     # artist_name must be a single string, otherwise we'll insert a null
     # for artists with multiple genres, we'll just choose the first one
     genre = artist['genres']
@@ -74,14 +85,6 @@ def get_artist_info(artist_name: str) -> dict:
         artist_info['genre'] = genre
     else:
         artist_info['genre'] = None
-
-    # external_url must be a single string, otherwise we'll insert a null
-    # for artists with multiple urls, we will use the spotify one
-    artist_url = artist['external_urls']['spotify']
-    if len(artist_url) > 0:
-        artist_info['external url'] = artist_url
-    else:
-        artist_info['external url'] = None
 
     # image_url must be a single string, otherwise we'll insert a null
     # for artists with multiple images, we'll just choose the first one
@@ -107,6 +110,9 @@ def get_artist_info(artist_name: str) -> dict:
         artist_popularity = None
     artist_info['popularity'] = artist_popularity
 
+    # type must be the string 'artist'
+    artist_info['type'] = 'artist'
+
     # artist_uri must be a string, otherwise we'll insert a null
     artist_uri = artist['uri']
     if isinstance(artist_uri, str) and len(artist_uri) > 0:
@@ -125,6 +131,10 @@ def make_artist_table(artist_names: list) -> pd.DataFrame:
 
     artist_table = pd.DataFrame.from_dict(artist_dict, orient='index')
 
+    # clean up the df
+    artist_table.reset_index(inplace=True)
+    artist_table.drop('index', axis=1, inplace=True)
+
     return artist_table
 
 def get_artist_ids(artist_table: pd.DataFrame) -> list:
@@ -132,6 +142,9 @@ def get_artist_ids(artist_table: pd.DataFrame) -> list:
     artist_ids = artist_table['artist_id'].tolist()
 
     return artist_ids
+
+# **********
+# ALBUM functions
 
 def get_album_info(artist_id: str) -> dict:
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
@@ -215,6 +228,10 @@ def make_album_table(artist_ids: list) -> pd.DataFrame:
 
     album_table = pd.DataFrame.from_dict(album_dict, orient='index')
 
+    # clean up the df
+    album_table.reset_index(inplace=True)
+    album_table.drop('index', axis=1, inplace=True)
+
     return album_table
 
 def get_album_ids(album_table: pd.DataFrame) -> list:
@@ -223,24 +240,251 @@ def get_album_ids(album_table: pd.DataFrame) -> list:
 
     return album_ids
 
+# **********
+# TRACK functions
+
+def get_track_info(album_id: str) -> dict:
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
+    results = spotify.album_tracks(album_id=album_id, limit=50)
+    tracks = results['items']
+
+    # if the search returns no results, items will be an empty list
+    if len(tracks) == 0:
+        # raise Exception('No tracks returned for this album')
+        return None
+
+    # create dictionary of track details
+    complete_tracks_dict = {}
+
+    for track in tracks:
+        track_dict = {}
+        # each item is validated before being inserted into the track_dict dictionary
+
+        #     track_id ('id')
+        if len(track['id']) > 0 and isinstance(track['id'], str):
+            track_dict['track_id'] = track['id']
+        else:
+            raise Exception('Album does not have a unique identifier.')
+
+        #     song_name ('name')
+        if len(track['name']) > 0 and isinstance(track['name'], str):
+            track_dict['song_name'] = track['name']
+        else:
+            track_dict['song_name'] = None
+
+        #     external_url ('external_urls'['spotify'])
+        if len(track['external_urls']['spotify']) > 0 and isinstance(track['external_urls']['spotify'], str):
+            track_dict['external_url'] = track['external_urls']['spotify']
+        else:
+            track_dict['external_url'] = None
+
+        #     duration_ms ('duration_ms')
+        if isinstance(track['duration_ms'], int):
+            track_dict['duration_ms'] = track['duration_ms']
+        else:
+            track_dict['duration_ms'] = None
+
+        #     explicit ('explicit')
+        if isinstance(track['explicit'], bool):
+            track_dict['explicit'] = track['explicit']
+        else:
+            track_dict['explicit'] = None
+
+        #     disc_number ('disc_number')
+        if isinstance(track['disc_number'], int):
+            track_dict['disc_number'] = track['disc_number']
+        else:
+            track_dict['disc_number'] = None
+
+        #     type ('type')
+        if len(track['type']) > 0 and isinstance(track['type'], str):
+            track_dict['type'] = track['type']
+        else:
+            track_dict['type'] = None
+
+        #     song_uri ('uri')
+        if len(track['uri']) > 0 and isinstance(track['uri'], str):
+            track_dict['song_uri'] = track['uri']
+        else:
+            track_dict['song_uri'] = None
+
+        #     album_id
+        track_dict['album_id'] = album_id
+
+        complete_tracks_dict[track_dict['track_id']] = track_dict
+
+    return complete_tracks_dict
+
+def make_track_table(album_ids: list) -> pd.DataFrame:
+    track_dict = {}
+
+    for id in album_ids:
+        track_info = get_track_info(id)
+        for track_id in track_info.keys():
+            track_dict[track_id] = track_info[track_id]
+
+    track_table = pd.DataFrame.from_dict(track_dict, orient='index')
+
+    # clean up the df
+    track_table.reset_index(inplace=True)
+    track_table.drop('index', axis=1, inplace=True)
+
+    return track_table
+
+def get_track_ids(track_table: pd.DataFrame) -> list:
+
+    track_ids = track_table['track_id'].tolist()
+
+    return track_ids
+
+# **********
+# TRACK_FEATURE functions
+
+def get_track_features_info(track_id: str) -> dict:
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
+    track_features = spotify.audio_features(tracks=[track_id])[0]
+    # track_features = results['items']
+
+    # if the search returns no results, items will be an empty list
+    if len(track_features) == 0:
+        # raise Exception('No tracks returned for this album')
+        return None
+
+    track_features_dict = {}
+    # each item is validated before being inserted into the track_features_dict dictionary
+
+    #     track_id ('id')
+    if len(track_features['id']) > 0 and isinstance(track_features['id'], str):
+        track_features_dict['track_id'] = track_features['id']
+    else:
+        raise Exception('Album does not have a unique identifier.')
+
+    #     danceability ('danceability')
+    if isinstance(track_features['danceability'], float):
+        track_features_dict['danceability'] = track_features['danceability']
+    else:
+        track_features_dict['danceability'] = None
+
+    #     energy ('energy')
+    if isinstance(track_features['energy'], float):
+        track_features_dict['energy'] = track_features['energy']
+    else:
+        track_features_dict['energy'] = None
+
+    #     instrumentalness ('instrumentalness')
+    if isinstance(track_features['instrumentalness'], float):
+        track_features_dict['instrumentalness'] = track_features['instrumentalness']
+    else:
+        track_features_dict['instrumentalness'] = None
+
+    #     liveness ('liveness')
+    if isinstance(track_features['liveness'], float):
+        track_features_dict['liveness'] = track_features['liveness']
+    else:
+        track_features_dict['liveness'] = None
+
+    #     loudness ('loudness')
+    if isinstance(track_features['loudness'], float):
+        track_features_dict['loudness'] = track_features['loudness']
+    else:
+        track_features_dict['loudness'] = None
+
+    #     speechiness ('speechiness')
+    if isinstance(track_features['speechiness'], float):
+        track_features_dict['speechiness'] = track_features['speechiness']
+    else:
+        track_features_dict['speechiness'] = None
+
+    #     tempo ('tempo')
+    if isinstance(track_features['tempo'], float):
+        track_features_dict['tempo'] = track_features['tempo']
+    else:
+        track_features_dict['tempo'] = None
+
+    #     type ('type')
+    if len(track_features['type']) > 0 and isinstance(track_features['type'], str):
+        track_features_dict['type'] = track_features['type']
+    else:
+        track_features_dict['type'] = None
+
+    #     valence ('valence')
+    if isinstance(track_features['valence'], float):
+        track_features_dict['valence'] = track_features['valence']
+    else:
+        track_features_dict['valence'] = None
+
+    #     song_uri ('uri')
+    if len(track_features['uri']) > 0 and isinstance(track_features['uri'], str):
+        track_features_dict['song_uri'] = track_features['uri']
+    else:
+        track_features_dict['song_uri'] = None
+
+    return track_features_dict
+
+def make_track_features_table(track_ids: list) -> pd.DataFrame:
+    track_features_dict = {}
+
+    for id in track_ids:
+        track_features_info = get_track_features_info(id)
+        track_features_dict[id] = track_features_info
+
+    track_features_table = pd.DataFrame.from_dict(track_features_dict, orient='index')
+
+    # clean up the df
+    track_features_table.reset_index(inplace=True)
+    track_features_table.drop('index', axis=1, inplace=True)
+
+    return track_features_table
+
+# **********
+# INGEST pipeline
+
 def ingest(artist_list: list):
 
     # Here's the pipeline!
     # First we create a pd.DataFrame of all the artist info
     artist = make_artist_table(artist_list)
+    # Store the pd.DataFrame for transform access
+    artist.to_feather('raw_data/artist.feather')
 
-    # In order to retrieve album info, we need artist ids in a list
+    # In order to retrieve album info, we need artist ids from the artist table in a list
     artist_ids = get_artist_ids(artist)
 
     # Next we create a pd.DataFrame of all the album info (multiple albums per artist)
     album = make_album_table(artist_ids)
+    album.to_feather('raw_data/album.feather')
 
-    # In order to retrieve track info, we need album ids in a list
+    # In order to retrieve track info, we need album ids from the album table in a list
     album_ids = get_album_ids(album)
 
     # Next we create a pd.DataFrame of all the track info (multiple tracks per album)
-    
+    track = make_track_table(album_ids)
+    track.to_feather('raw_data/track.feather')
+
+    # In order to retrieve track features, we need track ids from the track table in a list
+    track_ids = get_track_ids(track)
+
+    # Finally we create at pd.DataFrame of all the track features (multiple features per track)
+    track_feature = make_track_features_table(track_ids)
+    track_feature.to_feather('raw_data/track_feature.feather')
+
+    print('Ingest completed successfully')
+
 
 if __name__ == '__main__':
-    artist_list = ['Ben Folds', 'Earth, wind, and fire', 'hilary hahn']
+    artist_list = [
+        'hilary hahn',
+        'ben folds',
+        'jim brickman',
+        'earth, wind, and fire',
+        'elliott carter',
+        'michael thomas foumai',
+        'chicago',
+        'augusta read thomas',
+        'elliott miles mckinley'
+    ]
+
+    t0 = time.time()
     ingest(artist_list)
+
+    print(f'Ingest complete. Total time: {round(time.time() - t0, 2)}s')

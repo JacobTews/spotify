@@ -114,25 +114,6 @@ def get_artist_info(artist_name: str) -> dict:
     else:
         artist_info['artist_uri'] = None
 
-        # for i in needed_items:
-    #     if i == 'external_urls':
-    #         artist_info['external_url'] = artist[i]['spotify']
-    #     elif i == 'images':
-    #         if isinstance(artist[i], dict):
-    #             artist_info['image_url'] = artist[i]['url']
-    #         elif isinstance(artist[i], list) and len(artist[i]) > 0:
-    #             artist_info['image_url'] = artist[i][0]['url']
-    #         else:
-    #             artist_info['image_url'] = 'No image available'
-    #     elif i == 'followers':
-    #         artist_info[i] = artist[i]['total']
-    #     elif isinstance(artist[i], list):
-    #         if len(artist[i]) > 0:
-    #             artist_info[i] = artist[i][0]
-    #         else:
-    #             artist_info[i] = 'No data available'
-    #     else:
-    #         artist_info[i] = artist[i]
 
     return artist_info
 

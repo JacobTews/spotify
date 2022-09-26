@@ -97,8 +97,9 @@ def make_track_features_table(track_ids: list) -> pd.DataFrame:
 
 if __name__ == '__main__':
 
-    test_track_id = '3LptKjV3CVclsozwQ4pqBz'
-
-    print(make_track_features_table([test_track_id]))
-
-    print('Run completed')
+    # test_track_id = '3LptKjV3CVclsozwQ4pqBz'
+    #
+    # print(make_track_features_table([test_track_id]))
+    #
+    # print('Run completed')
+    pass

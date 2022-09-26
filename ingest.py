@@ -345,9 +345,9 @@ def get_track_features_info(track_id: str) -> dict:
     # track_features = results['items']
 
     # if the search returns no results, items will be an empty list
-    if len(track_features) == 0:
+    if (track_features is None) or (len(track_features) == 0):
         # raise Exception('No tracks returned for this album')
-        return None
+        return {}
 
     track_features_dict = {}
     # each item is validated before being inserted into the track_features_dict dictionary
@@ -448,7 +448,8 @@ def ingest(artist_list: list):
     artist = make_artist_table(artist_list)
     # Store the pd.DataFrame for transform access
     artist.to_feather('raw_data/artist.feather')
-    print(f'Artist info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
+    print(f'Artist info for {artist.shape[0]} artists retrieved and stored successfully.\n'
+          f'\tTotal time: {round(time.time() - t1, 2)}s')
 
     # In order to retrieve album info, we need artist ids from the artist table in a list
     artist_ids = get_artist_ids(artist)
@@ -457,7 +458,8 @@ def ingest(artist_list: list):
     t1 = time.time()
     album = make_album_table(artist_ids)
     album.to_feather('raw_data/album.feather')
-    print(f'Album info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
+    print(f'Album info for {album.shape[0]} albums retrieved and stored successfully.\n'
+          f'\tTotal time: {round(time.time() - t1, 2)}s')
 
     # In order to retrieve track info, we need album ids from the album table in a list
     album_ids = get_album_ids(album)
@@ -466,7 +468,8 @@ def ingest(artist_list: list):
     t1 = time.time()
     track = make_track_table(album_ids)
     track.to_feather('raw_data/track.feather')
-    print(f'Track info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
+    print(f'Track info for {track.shape[0]} tracks retrieved and stored successfully.\n'
+          f'\tTotal time: {round(time.time() - t1, 2)}s')
 
     # In order to retrieve track features, we need track ids from the track table in a list
     track_ids = get_track_ids(track)
@@ -475,7 +478,8 @@ def ingest(artist_list: list):
     t1 = time.time()
     track_feature = make_track_features_table(track_ids)
     track_feature.to_feather('raw_data/track_feature.feather')
-    print(f'Track feature info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
+    print(f'Track feature info for {track_feature.shape[0]} tracks retrieved and stored successfully.\n'
+          f'\tTotal time: {round(time.time() - t1, 2)}s')
 
     print(f'Ingest completed successfully. Total ingest time: {round(time.time() - t0, 2)}s')
 

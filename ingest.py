@@ -148,13 +148,12 @@ def get_artist_ids(artist_table: pd.DataFrame) -> list:
 
 def get_album_info(artist_id: str) -> dict:
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
-    results = spotify.artist_albums(artist_id=artist_id, album_type='album', country='US', limit=50)
+    results = spotify.artist_albums(artist_id=artist_id, country='US', limit=50)
     albums = results['items']
 
     # if the search returns no results, items will be an empty list
     if len(albums) == 0:
-        # raise Exception('No albums returned for this artist')
-        return None
+        raise Exception('No albums returned for this artist')
 
     # create dictionary of album details
     complete_albums_dict = {}
@@ -442,33 +441,43 @@ def make_track_features_table(track_ids: list) -> pd.DataFrame:
 def ingest(artist_list: list):
 
     # Here's the pipeline!
+    t0 = time.time()
+
     # First we create a pd.DataFrame of all the artist info
+    t1 = time.time()
     artist = make_artist_table(artist_list)
     # Store the pd.DataFrame for transform access
     artist.to_feather('raw_data/artist.feather')
+    print(f'Artist info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
 
     # In order to retrieve album info, we need artist ids from the artist table in a list
     artist_ids = get_artist_ids(artist)
 
     # Next we create a pd.DataFrame of all the album info (multiple albums per artist)
+    t1 = time.time()
     album = make_album_table(artist_ids)
     album.to_feather('raw_data/album.feather')
+    print(f'Album info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
 
     # In order to retrieve track info, we need album ids from the album table in a list
     album_ids = get_album_ids(album)
 
     # Next we create a pd.DataFrame of all the track info (multiple tracks per album)
+    t1 = time.time()
     track = make_track_table(album_ids)
     track.to_feather('raw_data/track.feather')
+    print(f'Track info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
 
     # In order to retrieve track features, we need track ids from the track table in a list
     track_ids = get_track_ids(track)
 
     # Finally we create at pd.DataFrame of all the track features (multiple features per track)
+    t1 = time.time()
     track_feature = make_track_features_table(track_ids)
     track_feature.to_feather('raw_data/track_feature.feather')
+    print(f'Track feature info retrieved and stored successfully. Total time: {round(time.time() - t1, 2)}s')
 
-    print('Ingest completed successfully')
+    print(f'Ingest completed successfully. Total ingest time: {round(time.time() - t0, 2)}s')
 
 
 if __name__ == '__main__':
@@ -477,14 +486,22 @@ if __name__ == '__main__':
         'ben folds',
         'jim brickman',
         'earth, wind, and fire',
-        'elliott carter',
-        'michael thomas foumai',
         'chicago',
+        'chris thile',
+        'bela fleck',
+        'fernando ortega',
+        'elliott carter',
+        'jacob collier',
+        'deborah klemme',
+        'michael thomas foumai',
         'augusta read thomas',
-        'elliott miles mckinley'
+        'elliott miles mckinley',
+        'jacob tews',
+        'christopher walczak',
+        'korey konkol',
+        'clare longendyke',
+        'erik rohde',
+        '7 days a cappella'
     ]
 
-    t0 = time.time()
     ingest(artist_list)
-
-    print(f'Ingest complete. Total time: {round(time.time() - t0, 2)}s')

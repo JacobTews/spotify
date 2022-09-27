@@ -1,15 +1,16 @@
 import os
 import pandas as pd
 import sqlite3
+import sqlalchemy
 
 def create_connection():
     try:
-        con = sqlite3.connect('database/music_data.sqlite')
-        return con
+        conn = sqlite3.connect('database/music_data.sqlite')
+        return conn
     except sqlite3.Error as e:
         print(e)
 
-    return con
+    return conn
 
 def make_table_dict_from_df(directory_path):
     filenames = []
@@ -26,20 +27,25 @@ def make_table_dict_from_df(directory_path):
 
     return table_dict
 
-def load_tables(tables: dict):
-    con = create_connection()
+def create_and_load_tables(tables: dict):
+    engine = sqlalchemy.create_engine('sqlite:///database/music_data.sqlite')
+    conn = create_connection()
     for table in tables.keys():
-        tables[table].to_sql(table, con, if_exists='replace')
-        con.execute(f'DROP TABLE IF EXISTS {table}')
-        con.execute(f"""
-                    CREATE TABLE {table} AS
-                    SELECT * FROM {tables[table]} 
-                    """
-                    )
-    con.close
+        tables[table].to_sql(table, engine, if_exists='replace', index=False)
+    conn.close()
 
 if __name__ == '__main__':
-    load_tables(make_table_dict_from_df('cleaned_data'))
+    # create_and_load_tables(make_table_dict_from_df('cleaned_data'))
 
-    # con = sqlite3.connect('database/music_data.sqlite')
-    # cur = con.cursor()
+    conn = sqlite3.connect('database/music_data.sqlite')
+    cur = conn.cursor()
+    sql_statement = """
+        SELECT *
+        FROM artist
+        LIMIT 5
+        """
+    cur.execute(sql_statement)
+    results = cur.fetchall()
+    for row in results:
+        print(row)
+    

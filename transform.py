@@ -67,6 +67,13 @@ def clean_album(album_df: pd.DataFrame, artist_ids: (list, list)) -> (pd.DataFra
     # To save as a feather, we need to reset the pandas index
     album_df.reset_index(inplace=True)
 
+    # When rows are dropped, a new column called 'index' (not the actual pandas index) is created.
+    # It needs to be removed
+    try:
+        album_df.drop('index', axis=1, inplace=True)
+    except:
+        pass
+
     return album_df, outlier_ids, (instrumental_album_ids, vocal_album_ids)
 
 # **********
@@ -99,6 +106,13 @@ def clean_track(track_df: pd.DataFrame, deleted_albums: list, sorted_album_ids: 
     # To save as a feather, we reset the pandas index
     track_df.reset_index(inplace=True)
 
+    # When rows are dropped, a new column called 'index' (not the actual pandas index) is created.
+    # It needs to be removed
+    try:
+        track_df.drop('index', axis=1, inplace=True)
+    except:
+        pass
+
     return track_df, outlier_track_ids, (instrumental_track_ids, vocal_track_ids)
 
 
@@ -124,6 +138,13 @@ def clean_track_features(track_features_df: pd.DataFrame, outlier_track_ids: lis
 
     # To save as a feather, we reset the pandas index
     track_features_df.reset_index(inplace=True)
+
+    # When rows are dropped, a new column called 'index' (not the actual pandas index) is created.
+    # It needs to be removed
+    try:
+        track_features_df.drop('index', axis=1, inplace=True)
+    except:
+        pass
 
     return track_features_df
 

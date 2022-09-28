@@ -48,7 +48,7 @@ def load(directory_path: str):
     create_and_load_tables(table_dict)
 
     print(f'Load completed successfully. Total load time: {round(time.time() - t0, 2)}s')
-    
+
 
 if __name__ == '__main__':
 

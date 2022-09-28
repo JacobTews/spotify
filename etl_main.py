@@ -2,6 +2,23 @@ import ingest
 import transform
 import load
 
+def etl(artist_list: list):
+
+    # Here's the pipeline!
+    t0 = time.time()
+
+    # extract
+    ingest.ingest(artist_list)
+
+    # transform
+    transform.transform()
+
+    # load
+    load.load('cleaned_data')
+
+    print(f'ETL completed successfully. Total time: {round(time.time() - t0, 2)}s')
+
+
 if __name__ == '__main__':
 
     artist_list = [
@@ -27,8 +44,4 @@ if __name__ == '__main__':
         '7 days a cappella'
     ]
 
-    # extract
-    ingest.ingest(artist_list)
-    # transform
-    transform.transform()
-    # load
+    etl(artist_list)

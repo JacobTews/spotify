@@ -35,17 +35,17 @@ def create_and_load_tables(tables: dict):
     conn.close()
 
 if __name__ == '__main__':
-    # create_and_load_tables(make_table_dict_from_df('cleaned_data'))
+    create_and_load_tables(make_table_dict_from_df('cleaned_data'))
 
-    conn = sqlite3.connect('database/music_data.sqlite')
-    cur = conn.cursor()
-    sql_statement = """
-        SELECT *
-        FROM artist
-        LIMIT 5
-        """
-    cur.execute(sql_statement)
-    results = cur.fetchall()
-    for row in results:
-        print(row)
+    # conn = sqlite3.connect('database/music_data.sqlite')
+    # cur = conn.cursor()
+    # sql_statement = """
+    #     SELECT *
+    #     FROM artist
+    #     LIMIT 5
+    #     """
+    # cur.execute(sql_statement)
+    # results = cur.fetchall()
+    # for row in results:
+    #     print(row)
     

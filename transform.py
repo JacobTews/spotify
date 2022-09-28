@@ -49,6 +49,16 @@ def clean_album(album_df: pd.DataFrame, artist_ids: (list, list)) -> (pd.DataFra
     outlier_ids = outlier_df['album_id'].tolist()
     album_df.drop(outlier_df.index, inplace=True)
 
+    # I am not interested in data from albums which are compilations. A few might be pertinent, but most are not.
+    compilations_df = album_df[album_df['type'] == 'compilation']
+    # In order to remove from the tracks table all the tracks from these compilation albums, we add the ids to the
+    # outlier_ids list
+    compilation_ids = compilations_df['album_id'].tolist()
+    for id in compilation_ids:
+        outlier_ids.append(id)
+    album_df.drop(compilations_df.index, inplace=True)
+
+
     # For use in imputing instrumentalness values in the track_feature table, I'll need the album ids
     # from the albums sorted by whether the artist is primarily instrumental or vocal
     instrumental_album_ids = []

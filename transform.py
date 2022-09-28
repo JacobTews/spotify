@@ -182,7 +182,7 @@ def transform():
     cleaned_artist_df.to_feather('cleaned_data/cleaned_artist.feather')
     cleaned_album_df.to_feather('cleaned_data/cleaned_album.feather')
     cleaned_track_df.to_feather('cleaned_data/cleaned_track.feather')
-    cleaned_track_features_df.to_feather('cleaned_data/cleaned_track_features.feather')
+    cleaned_track_features_df.to_feather('cleaned_data/cleaned_track_feature.feather')
 
     print(f'Transform completed successfully. Total transform time: {round(time.time() - t0, 2)}s')
 

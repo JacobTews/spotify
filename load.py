@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import sqlite3
 import sqlalchemy
+import time
 
 def create_connection():
     try:
@@ -12,7 +13,7 @@ def create_connection():
 
     return conn
 
-def make_table_dict_from_df(directory_path):
+def make_table_dict_from_df(directory_path) -> dict:
     filenames = []
     for filename in os.listdir(directory_path):
         f = os.path.join(directory_path, filename)
@@ -34,18 +35,21 @@ def create_and_load_tables(tables: dict):
         tables[table].to_sql(table, engine, if_exists='replace', index=False)
     conn.close()
 
-if __name__ == '__main__':
-    create_and_load_tables(make_table_dict_from_df('cleaned_data'))
+def load(directory_path: str):
 
-    # conn = sqlite3.connect('database/music_data.sqlite')
-    # cur = conn.cursor()
-    # sql_statement = """
-    #     SELECT *
-    #     FROM artist
-    #     LIMIT 5
-    #     """
-    # cur.execute(sql_statement)
-    # results = cur.fetchall()
-    # for row in results:
-    #     print(row)
+    # Here's the pipeline!
+    t0 = time.time()
+
+    # First we take all the feather files in the cleaned_data directory and store in a dict of pd.DataFrames
+    table_dict = make_table_dict_from_df(directory_path)
+
+    # Then those pd.DataFrames can be loaded into the SQLite database using the SQLAlchemy engine
+    # and the pandas native SQL support
+    create_and_load_tables(table_dict)
+
+    print(f'Load completed successfully. Total load time: {round(time.time() - t0, 2)}s')
     
+
+if __name__ == '__main__':
+
+    load('cleaned_data')

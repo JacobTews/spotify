@@ -1,5 +1,6 @@
 import ingest
 import transform
+import load
 
 if __name__ == '__main__':
 

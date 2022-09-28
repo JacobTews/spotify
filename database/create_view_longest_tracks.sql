@@ -1,3 +1,6 @@
+DROP VIEW IF EXISTS view_longest_tracks
+;
+
 CREATE VIEW view_longest_tracks AS
 	WITH long_cte AS (
 		SELECT DISTINCT

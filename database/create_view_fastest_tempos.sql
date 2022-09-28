@@ -1,3 +1,7 @@
+DROP VIEW IF EXISTS view_fastest_tempos
+;
+
+CREATE VIEW view_fastest_tempos AS
 	WITH tempo_rank_cte AS (
 		SELECT DISTINCT
 			track.song_name

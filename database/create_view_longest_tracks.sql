@@ -17,7 +17,6 @@ CREATE VIEW view_longest_tracks AS
 		LEFT JOIN artist
 			ON artist.artist_id = album.artist_id
 		WHERE artist_name IS NOT NULL
-		ORDER BY artist_name, duration_ms DESC
 	)
 
 	SELECT
@@ -25,5 +24,6 @@ CREATE VIEW view_longest_tracks AS
 		, song_name
 		, duration_ms
 	FROM long_cte
-	WHERE song_rank <= 5
+	WHERE song_rank <= 10
+	ORDER BY artist_name, duration_ms DESC
 ;

@@ -6,14 +6,14 @@ CREATE VIEW view_fastest_tempos AS
 		SELECT DISTINCT
 			track.song_name
 			, artist.artist_name
-			, track_features.tempo
+			, track_feature.tempo
 			, DENSE_RANK() OVER (
 				PARTITION BY artist_name
 				ORDER BY tempo DESC
 				) AS song_tempo_rank
-		FROM track_features
+		FROM track_feature
 		LEFT JOIN track
-			ON track.track_id = track_features.track_id
+			ON track.track_id = track_feature.track_id
 		LEFT JOIN album
 			ON album.album_id = track.album_id
 		LEFT JOIN artist
@@ -29,5 +29,5 @@ CREATE VIEW view_fastest_tempos AS
 			, tempo
 			) AS tempo
 	FROM tempo_rank_cte
-	WHERE song_tempo_rank <= 5
+	WHERE song_tempo_rank <= 10
 ;

@@ -2,12 +2,12 @@
 The purpose of this script is to retrieve the needed information from the Spotify API.
 
 """
+
 import time
 from datetime import datetime
 import pandas as pd
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import sqlite3
 
 
 # tasks:
@@ -22,6 +22,12 @@ import sqlite3
 # ARTIST functions
 
 def get_artist_info(artist_name: str) -> dict:
+    """
+    Gets artist information from the Spotify API
+
+    :param artist_name: artist/band name string to search
+    :return: dictionary of all required features
+    """
 
     # Here is the list of artist features required:
     # needed_items = [
@@ -123,6 +129,13 @@ def get_artist_info(artist_name: str) -> dict:
     return artist_info
 
 def make_artist_table(artist_names: list) -> pd.DataFrame:
+    """
+    Takes the list of artist names supplied by the user and returns a pandas DataFrame of all artists
+
+    :param artist_names: list of strings of artist/band names
+    :return: pd.DataFrame of all artist info
+    """
+
     artist_dict = {}
 
     for name in artist_names:
@@ -138,6 +151,12 @@ def make_artist_table(artist_names: list) -> pd.DataFrame:
     return artist_table
 
 def get_artist_ids(artist_table: pd.DataFrame) -> list:
+    """
+    Retrieves the list of artist IDs for use elsewhere
+
+    :param artist_table: pandas DataFrame of artist information
+    :return: list of artist IDs as strings
+    """
 
     artist_ids = artist_table['artist_id'].tolist()
 
@@ -147,6 +166,13 @@ def get_artist_ids(artist_table: pd.DataFrame) -> list:
 # ALBUM functions
 
 def get_album_info(artist_id: str) -> dict:
+    """
+    Gets album information from the Spotify API
+
+    :param artist_id: ID (string) for artist as retrieved by get_artist_ids
+    :return: dictionary of all available album information for artist
+    """
+
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
     results = spotify.artist_albums(artist_id=artist_id, country='US', limit=50)
     albums = results['items']
@@ -218,6 +244,13 @@ def get_album_info(artist_id: str) -> dict:
     return complete_albums_dict
 
 def make_album_table(artist_ids: list) -> pd.DataFrame:
+    """
+    Takes the list of artist IDs and returns a pandas DataFrame of all albums
+
+    :param artist_ids: list of strings of artist IDs
+    :return: pd.DataFrame of all album info
+    """
+
     album_dict = {}
 
     for id in artist_ids:
@@ -234,6 +267,12 @@ def make_album_table(artist_ids: list) -> pd.DataFrame:
     return album_table
 
 def get_album_ids(album_table: pd.DataFrame) -> list:
+    """
+    Retrieves the list of album IDs for use elsewhere
+
+    :param album_table: pandas DataFrame of album information
+    :return: list of album IDs (strings)
+    """
 
     album_ids = album_table['album_id'].tolist()
 
@@ -243,6 +282,13 @@ def get_album_ids(album_table: pd.DataFrame) -> list:
 # TRACK functions
 
 def get_track_info(album_id: str) -> dict:
+    """
+    Gets track information from the Spotify API
+
+    :param album_id: ID (string) for album as retrieved by get_album_ids
+    :return: dictionary of all available track information for album
+    """
+
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
     results = spotify.album_tracks(album_id=album_id, limit=50)
     tracks = results['items']
@@ -315,6 +361,13 @@ def get_track_info(album_id: str) -> dict:
     return complete_tracks_dict
 
 def make_track_table(album_ids: list) -> pd.DataFrame:
+    """
+    Takes the list of album IDs and returns a pandas DataFrame of all tracks for all albums
+
+    :param album_ids: list of strings of album IDs
+    :return: pd.DataFrame of all track info
+    """
+
     track_dict = {}
 
     for id in album_ids:
@@ -331,6 +384,12 @@ def make_track_table(album_ids: list) -> pd.DataFrame:
     return track_table
 
 def get_track_ids(track_table: pd.DataFrame) -> list:
+    """
+    Retrieves the list of track IDs for use elsewhere
+
+    :param track_table: pandas DataFrame of track information
+    :return: list of track IDs (strings)
+    """
 
     track_ids = track_table['track_id'].tolist()
 
@@ -340,6 +399,13 @@ def get_track_ids(track_table: pd.DataFrame) -> list:
 # TRACK_FEATURE functions
 
 def get_track_features_info(track_id: str) -> dict:
+    """
+    Gets track feature information from the Spotify API
+
+    :param track_id: ID (string) for track as retrieved by get_track_ids
+    :return: dictionary of all available track feature information for track
+    """
+
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
     track_features = spotify.audio_features(tracks=[track_id])[0]
     # track_features = results['items']
@@ -421,6 +487,13 @@ def get_track_features_info(track_id: str) -> dict:
     return track_features_dict
 
 def make_track_features_table(track_ids: list) -> pd.DataFrame:
+    """
+    Takes the list of track IDs and returns a pandas DataFrame of all features for all tracks
+
+    :param track_ids: list of strings of track IDs
+    :return: pd.DataFrame of all track features
+    """
+
     track_features_dict = {}
 
     for id in track_ids:

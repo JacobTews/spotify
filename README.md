@@ -15,6 +15,10 @@
 * time
 * datetime
 * spotipy
+* random
+* os
+* sqlite3
+* sqlalchemy
 
 N.B. - Spotify API credentials should be stored as environment variables on your local machine.
 
